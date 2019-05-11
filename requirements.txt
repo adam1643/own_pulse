@@ -1,1 +1,6 @@
 pillow
+requests
+grequests
+numpy
+keras
+cv2

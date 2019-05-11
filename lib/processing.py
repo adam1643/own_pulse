@@ -18,7 +18,7 @@ def resource_path(relative_path):
 
 class findFaceGetPulse(object):
 
-    def __init__(self, bpm_limits=[], data_spike_limit=250,
+    def __init__(self, emotions, bpm_limits=[], data_spike_limit=250,
                  face_detector_smoothness=10):
 
         self.frame_in = np.zeros((10, 10))
@@ -51,6 +51,10 @@ class findFaceGetPulse(object):
         self.find_faces = True
 
         self.gap = None
+        self.emotions = emotions
+        self.last_detected = None
+
+        self.pulse_measured = False
 
     def find_faces_toggle(self):
         self.find_faces = not self.find_faces
@@ -101,42 +105,40 @@ class findFaceGetPulse(object):
         return self.bpms
 
     def run(self, cam):
+        self.pulse_measured = False
         self.times.append(time.time() - self.t0)
         self.frame_out = self.frame_in
         self.gray = cv2.equalizeHist(cv2.cvtColor(self.frame_in,
                                                   cv2.COLOR_BGR2GRAY))
-        col = (100, 255, 100)
-        #
-        # cv2.putText(
-        #     self.frame_out, "You must be logged in to save your results!", (10, 25), cv2.FONT_HERSHEY_PLAIN, 1.25, col)
 
         if self.find_faces:
             self.data_buffer, self.times, self.trained = [], [], False
             detected = list(self.face_cascade.detectMultiScale(self.gray,
                                                                scaleFactor=1.3,
                                                                minNeighbors=4,
-                                                               minSize=(
-                                                                   50, 50),
+                                                               minSize=(100, 100),
                                                                flags=cv2.CASCADE_SCALE_IMAGE))
-
+            col = (100, 255, 255)
             if len(detected) > 0:
                 detected.sort(key=lambda a: a[-1] * a[-2])
-
                 if self.shift(detected[-1]) > 10:
                     self.face_rect = detected[-1]
+                self.last_detected = detected
+                self.emotions.predict(self.frame_in, detected)
             forehead1 = self.get_subface_coord(0.5, 0.18, 0.25, 0.15)
             self.draw_rect(self.face_rect, col=(255, 0, 0))
             x, y, w, h = self.face_rect
-            cv2.putText(self.frame_out, "Face",
+            cv2.putText(self.frame_out, "Twarz",
                         (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
             self.draw_rect(forehead1)
             x, y, w, h = forehead1
-            cv2.putText(self.frame_out, "Forehead",
+            cv2.putText(self.frame_out, "Czolo",
                         (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
             return
         if set(self.face_rect) == set([1, 1, 2, 2]):
             return
 
+        self.emotions.predict(self.frame_in, self.last_detected)
         forehead1 = self.get_subface_coord(0.5, 0.18, 0.25, 0.15)
         self.draw_rect(forehead1)
 
@@ -203,9 +205,11 @@ class findFaceGetPulse(object):
             gap = (self.buffer_size - L) / self.fps
             self.gap = gap
             if gap:
-                text = "(estimate: %0.1f bpm, wait %0.0f s)" % (self.bpm, gap)
+                text = "(szacowany: %0.1f bpm, czekaj %0.0f s)" % (self.bpm, gap)
             else:
-                text = "(estimate: %0.1f bpm)" % (self.bpm)
+                text = "(szacowany: %0.1f bpm)" % (self.bpm)
+                self.pulse_measured = True
+
             tsize = 1
             cv2.putText(self.frame_out, text,
                         (int(x - w / 2), int(y)), cv2.FONT_HERSHEY_PLAIN, tsize, col)
