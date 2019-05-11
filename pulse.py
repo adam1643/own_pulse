@@ -25,8 +25,6 @@ class Pulse(object):
         self.e = Emotions()
         self.processor = findFaceGetPulse(emotions=self.e)
 
-        self.moved_window = False
-
         self.logged_in = False
 
         self.bpm = 0
@@ -43,7 +41,7 @@ class Pulse(object):
         self.h, self.w, _c = frame.shape
         self.processor.frame_in = frame
         # process the image frame to perform all needed analysis
-        self.processor.run(1)
+        self.processor.run()
         # collect the output frame for display
         output_frame = self.processor.frame_out
 
@@ -55,14 +53,7 @@ class Pulse(object):
         lmain.configure(image=imgtk)
 
         bpms = self.processor.get_bpms()
-
-        sum_pulse = 0
-        for b in bpms:
-            sum_pulse = sum_pulse + b
-        if len(bpms) > 0:
-            self.bpm = int(sum_pulse / len(bpms))
-        else:
-            self.bpm = "---"
+        self.bpm = mean(bpms)
 
         if self.sending_pulse is False and self.processor.pulse_measured is True and self.logged_in is True:
             send_pulse()
@@ -71,12 +62,22 @@ class Pulse(object):
             send_emotions()
 
         if self.processor.gap:
-            v2.set("Czekaj... " + str(int(self.processor.gap)) + " s")
+            text_var_pulse.set("Czekaj... " + str(int(self.processor.gap)) + " s")
         else:
-            v2.set(str(self.bpm))
-        # var_emotions.set(self.e.get_last_prediction_str())
-        # var_best.set(self.e.get_best_emotion())
+            text_var_pulse.set(str(self.bpm))
+
         set_emotions_labels(self.e.get_last_prediction())
+
+
+def mean(x):
+    length = len(x)
+    if length is 0:
+        return "---"
+
+    sum = 0
+    for a in x:
+        sum = sum + a
+    return sum / length
 
 
 def send_pulse():
@@ -97,19 +98,19 @@ def send_emotions():
         p.sending_emotions = False
 
 
-def login_entry(event):
-    if entry.get() == 'nazwa użytkownika':
-        entry.delete(0, "end")  # delete all the text in the entry
-        entry.insert(0, '')  # Insert blank for user input
-        entry.config(fg="black")
+def username_entry(event):
+    if entry_username.get() == 'nazwa użytkownika':
+        entry_username.delete(0, "end")  # delete all the text in the entry
+        entry_username.insert(0, '')  # Insert blank for user input
+        entry_username.config(fg="black")
 
 
 def password_entry(event):
-    if entry2.get() == 'hasło':
-        entry2.delete(0, "end")  # delete all the text in the entry
-        entry2.insert(0, '')  # Insert blank for user input
-        entry2.config(show="\u2022")  # set dots for password entry
-        entry2.config(fg="black")
+    if entry_password.get() == 'hasło':
+        entry_password.delete(0, "end")  # delete all the text in the entry
+        entry_password.insert(0, '')  # Insert blank for user input
+        entry_password.config(show="\u2022")  # set dots for password entry
+        entry_password.config(fg="black")
 
 
 def set_emotions_labels(emotions):
@@ -136,8 +137,8 @@ conn = BackendConnection()
 
 
 def login_callback():
-    print("%s:%s" % (entry.get(), entry2.get()))
-    conn.login(entry.get(), entry2.get(), login_response)
+    print("%s:%s" % (entry_username.get(), entry_password.get()))
+    conn.login(entry_username.get(), entry_password.get(), login_response)
 
 
 def callback_start():
@@ -171,17 +172,17 @@ labelLogin = tk.Label(frame_login, text="Zaloguj się: ")
 labelLogin.grid(column=0, row=0)
 
 # pola do logowania
-entry = tk.Entry(frame_login, bd=1)
-entry.insert(0, 'nazwa użytkownika')
-entry.bind('<FocusIn>', login_entry)
-entry.grid(column=0, row=1)
-entry.config(fg="#999999")
+entry_username = tk.Entry(frame_login, bd=1)
+entry_username.insert(0, 'nazwa użytkownika')
+entry_username.bind('<FocusIn>', username_entry)
+entry_username.grid(column=0, row=1)
+entry_username.config(fg="#999999")
 
-entry2 = tk.Entry(frame_login, bd=1)
-entry2.insert(0, 'hasło')
-entry2.bind('<FocusIn>', password_entry)
-entry2.grid(column=0, row=2)
-entry2.config(fg="#999999")
+entry_password = tk.Entry(frame_login, bd=1)
+entry_password.insert(0, 'hasło')
+entry_password.bind('<FocusIn>', password_entry)
+entry_password.grid(column=0, row=2)
+entry_password.config(fg="#999999")
 
 # przycisk logowania
 button_login = tk.Button(frame_login, text="Zaloguj", width=10, command=login_callback)
@@ -213,9 +214,9 @@ bold_font.configure(weight="bold")
 bold_font.configure(size=18)
 label_pulse.configure(font=bold_font)
 
-v2 = tk.StringVar()
-v2.set("---")
-label3 = tk.Label(frame_pulse, textvariable=v2, fg="blue")
+text_var_pulse = tk.StringVar()
+text_var_pulse.set("---")
+label3 = tk.Label(frame_pulse, textvariable=text_var_pulse, fg="blue")
 label3.config(font=("Courier", 20))
 label3.grid(column=0, row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
@@ -271,7 +272,7 @@ lmain.lower()
 
 # popup o zapisanych danych
 label_saved = tk.Label(root, text="Dane zapisano!", bg="#EEEEEE")
-label_saved.grid(column=1, row=16, columnspan=4, sticky=tk.E+tk.S)
+label_saved.grid(column=1, row=16, columnspan=4, sticky=tk.E + tk.S)
 label_saved.lower()
 label_saved.lower()
 
@@ -297,7 +298,7 @@ def login_response(response, **kwargs):
         conn.set_user_id(uid)
         conn.logged = True
         p.logged_in = True
-        lmain1 = tk.Label(frame_login, text=("Zalogowano jako:\n" + entry.get()))
+        lmain1 = tk.Label(frame_login, text=("Zalogowano jako:\n" + entry_username.get()))
         lmain1.grid(column=0, row=0, rowspan=4, sticky=tk.W + tk.E + tk.N + tk.S)
 
         # link do strony

@@ -18,8 +18,11 @@ def resource_path(relative_path):
 
 class findFaceGetPulse(object):
 
-    def __init__(self, emotions, bpm_limits=[], data_spike_limit=250,
-                 face_detector_smoothness=10):
+    def __init__(self, emotions):
+
+        dpath = resource_path("haarcascade_frontalface_alt.xml")
+        if not os.path.exists(dpath):
+            print("Cascade file not present!")
 
         self.frame_in = np.zeros((10, 10))
         self.frame_out = np.zeros((10, 10))
@@ -28,7 +31,6 @@ class findFaceGetPulse(object):
 
         self.data_buffer = []
         self.times = []
-        self.ttimes = []
         self.samples = []
         self.freqs = []
         self.fft = []
@@ -36,9 +38,7 @@ class findFaceGetPulse(object):
         self.t0 = time.time()
         self.bpms = []
         self.bpm = 0
-        dpath = resource_path("haarcascade_frontalface_alt.xml")
-        if not os.path.exists(dpath):
-            print("Cascade file not present!")
+
         self.face_cascade = cv2.CascadeClassifier(dpath)
 
         self.face_rect = [1, 1, 2, 2]
@@ -59,9 +59,6 @@ class findFaceGetPulse(object):
     def find_faces_toggle(self):
         self.find_faces = not self.find_faces
         return self.find_faces
-
-    def get_faces(self):
-        return
 
     def shift(self, detected):
         x, y, w, h = detected
@@ -91,20 +88,10 @@ class findFaceGetPulse(object):
 
         return (v1 + v2 + v3) / 3.
 
-    def train(self):
-        self.trained = not self.trained
-        return self.trained
-
-    def plot(self):
-        1
-
-    def get_bpm(self):
-        return self.bpm
-
     def get_bpms(self):
         return self.bpms
 
-    def run(self, cam):
+    def run(self):
         self.pulse_measured = False
         self.times.append(time.time() - self.t0)
         self.frame_out = self.frame_in
