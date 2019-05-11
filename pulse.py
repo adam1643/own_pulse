@@ -12,6 +12,8 @@ import webbrowser
 from threading import Timer
 import json
 
+from text_strings import *
+
 
 class Pulse(object):
 
@@ -62,7 +64,7 @@ class Pulse(object):
             send_emotions()
 
         if self.processor.gap:
-            text_var_pulse.set("Czekaj... " + str(int(self.processor.gap)) + " s")
+            text_var_pulse.set(TXT_WAIT + str(int(self.processor.gap)) + " s")
         else:
             text_var_pulse.set(str(self.bpm))
 
@@ -99,14 +101,14 @@ def send_emotions():
 
 
 def username_entry(event):
-    if entry_username.get() == 'nazwa użytkownika':
+    if entry_username.get() == TXT_USERNAME:
         entry_username.delete(0, "end")  # delete all the text in the entry
         entry_username.insert(0, '')  # Insert blank for user input
         entry_username.config(fg="black")
 
 
 def password_entry(event):
-    if entry_password.get() == 'hasło':
+    if entry_password.get() == TXT_PASSWORD:
         entry_password.delete(0, "end")  # delete all the text in the entry
         entry_password.insert(0, '')  # Insert blank for user input
         entry_password.config(show="\u2022")  # set dots for password entry
@@ -129,11 +131,10 @@ def set_emotions_labels(emotions):
     labels_emotions_value[max_emotion].configure(font=bold_font, fg='red')
 
 
-root = tk.Tk()
-root.title("E-Health System")
-
 p = Pulse()
 conn = BackendConnection()
+root = tk.Tk()
+root.title(TXT_TITLE)
 
 
 def login_callback():
@@ -141,7 +142,7 @@ def login_callback():
     conn.login(entry_username.get(), entry_password.get(), login_response)
 
 
-def callback_start():
+def start_pulse_measure():
     p.start()
 
 
@@ -167,29 +168,29 @@ frame_login = tk.Frame(root, highlightbackground="black", highlightcolor="black"
 frame_login.grid(column=0, row=0, rowspan=5, sticky=tk.E + tk.W + tk.N + tk.S, pady=3, padx=3)
 frame_login.lift()
 
-# pierwsza linijka
-labelLogin = tk.Label(frame_login, text="Zaloguj się: ")
+# first line
+labelLogin = tk.Label(frame_login, text=TXT_LOG_IN)
 labelLogin.grid(column=0, row=0)
 
-# pola do logowania
+# login entrys
 entry_username = tk.Entry(frame_login, bd=1)
-entry_username.insert(0, 'nazwa użytkownika')
+entry_username.insert(0, TXT_USERNAME)
 entry_username.bind('<FocusIn>', username_entry)
 entry_username.grid(column=0, row=1)
 entry_username.config(fg="#999999")
 
 entry_password = tk.Entry(frame_login, bd=1)
-entry_password.insert(0, 'hasło')
+entry_password.insert(0, TXT_PASSWORD)
 entry_password.bind('<FocusIn>', password_entry)
 entry_password.grid(column=0, row=2)
 entry_password.config(fg="#999999")
 
-# przycisk logowania
-button_login = tk.Button(frame_login, text="Zaloguj", width=10, command=login_callback)
+# login button
+button_login = tk.Button(frame_login, text=TXT_LOG_IN_BUTTON, width=10, command=login_callback)
 button_login.grid(column=0, row=3, pady=5)
 
-# link do strony
-label_link = tk.Label(frame_login, text="Nie masz konta? Zarejestruj się", width=32)
+# url to web app
+label_link = tk.Label(frame_login, text=TXT_REGISTER_INFO, width=32)
 label_link.bind("<Button-1>", open_website)
 label_link.bind("<Enter>", on_enter)
 label_link.bind("<Leave>", on_leave)
@@ -207,21 +208,23 @@ frame_pulse = tk.Frame(root, highlightbackground="black", highlightcolor="black"
 frame_pulse.grid(column=0, row=5, rowspan=5, sticky=tk.E + tk.W + tk.N + tk.S, pady=3, padx=3)
 frame_pulse.lift()
 
-label_pulse = tk.Label(frame_pulse, text="PULS", width=21)
+# PULS label
+label_pulse = tk.Label(frame_pulse, text=TXT_PULSE, width=21)
 label_pulse.grid(column=0, row=0, sticky=tk.E + tk.W + tk.N + tk.S)
 bold_font = font.Font(label_link, label_link.cget("font"))
 bold_font.configure(weight="bold")
 bold_font.configure(size=18)
 label_pulse.configure(font=bold_font)
 
+# pulse result
 text_var_pulse = tk.StringVar()
 text_var_pulse.set("---")
 label3 = tk.Label(frame_pulse, textvariable=text_var_pulse, fg="blue")
 label3.config(font=("Courier", 20))
 label3.grid(column=0, row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
-# przycisk pomiaru
-b2 = tk.Button(frame_pulse, text="Wykonaj pomiary", command=callback_start)
+# measure start button
+b2 = tk.Button(frame_pulse, text=TXT_START_MEASURE_BUTTON, command=start_pulse_measure)
 b2.grid(column=0, row=2)
 
 
@@ -248,12 +251,13 @@ var_emotions = [tk.StringVar() for i in range(7)]
 
 emotions_l = ['Złość', 'Zniesmaczenie', 'Strach', 'Radość', 'Smutek', 'Zaskoczenie', 'Obojętność']
 
+# row for each emotion
 for i in range(7):
     var_emotions[i].set("")
     (labels_emotion[i], labels_emotions_value[i]) = insert_row(frame=frame_emotions, index=i, text=emotions_l[i],
                                                                text_var=var_emotions[i])
 
-# najlepszy wynik
+# best result
 # var_best = tk.StringVar()
 # var_best.set("Best")
 # label_emotions = tk.Label(root, textvariable=var_best, fg="red")
@@ -265,20 +269,20 @@ for i in range(7):
 
 # ----------------- FRAME MAIN VIDEO ----------------
 
-# głowne wideo
+# main video stream
 lmain = tk.Label(root)
 lmain.grid(column=1, row=0, columnspan=4, rowspan=17)
 lmain.lower()
 
-# popup o zapisanych danych
-label_saved = tk.Label(root, text="Dane zapisano!", bg="#EEEEEE")
+# data saved popup
+label_saved = tk.Label(root, text=TXT_DATA_SAVED, bg="#EEEEEE")
 label_saved.grid(column=1, row=16, columnspan=4, sticky=tk.E + tk.S)
 label_saved.lower()
 label_saved.lower()
 
-# ostatnia linijka
+# login reminder
 warning_text = tk.StringVar()
-warning_text.set("Musisz być zalogowany, żeby zapisać wyniki!")
+warning_text.set(TXT_LOGGING_REQUIRED_FOR_SAVING)
 label_warning = tk.Label(root, textvariable=warning_text, fg="red", bg="#DDDDDD")
 label_warning.grid(column=1, row=16, columnspan=4, sticky=tk.S)
 
@@ -291,18 +295,16 @@ label_warning.grid(column=1, row=16, columnspan=4, sticky=tk.S)
 
 
 def login_response(response, **kwargs):
-    print(response.status_code)
-    # print("UDALO SIE!", json.loads(response.content)['id'])
     if response.status_code is 200:
         uid = json.loads(response.content)['id']
         conn.set_user_id(uid)
         conn.logged = True
         p.logged_in = True
-        lmain1 = tk.Label(frame_login, text=("Zalogowano jako:\n" + entry_username.get()))
-        lmain1.grid(column=0, row=0, rowspan=4, sticky=tk.W + tk.E + tk.N + tk.S)
+        label_logged_in = tk.Label(frame_login, text=(TXT_LOGGED_AS + "\n" + entry_username.get()))
+        label_logged_in.grid(column=0, row=0, rowspan=4, sticky=tk.W + tk.E + tk.N + tk.S)
 
-        # link do strony
-        label_link_results = tk.Label(frame_login, text="Przejdź do historii wyników", width=32)
+        # url to web app
+        label_link_results = tk.Label(frame_login, text=TXT_RESULTS_HISTORY, width=32)
         label_link_results.bind("<Button-1>", open_website)
         label_link_results.bind("<Enter>", on_enter)
         label_link_results.bind("<Leave>", on_leave)
@@ -312,10 +314,9 @@ def login_response(response, **kwargs):
 
         label_warning.lower()
     else:
-        print("a")
-        lmain1 = tk.Label(frame_login, text=("Błędne dane logowania! Spróbuj ponownie"), fg="red")
-        lmain1.grid(column=0, row=3, rowspan=1, sticky=tk.N + tk.S)
-        root.after(2000, lmain1.destroy)
+        label_logged_in = tk.Label(frame_login, text=TXT_WRONG_CREDENTIALS, fg="red")
+        label_logged_in.grid(column=0, row=3, rowspan=1, sticky=tk.N + tk.S)
+        root.after(2000, label_logged_in.destroy)
 
 
 def send_response(response, **kwargs):
@@ -323,8 +324,6 @@ def send_response(response, **kwargs):
     if response.status_code is 200:
         label_saved.lift(aboveThis=lmain)
         root.after(1000, hide_label)
-    else:
-        print("Błąd")
 
 
 while True:
