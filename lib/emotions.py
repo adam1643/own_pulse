@@ -36,9 +36,6 @@ class Emotions(object):
 
                 predictions = self.emotion_model.predict(resized_face)[0]
                 self.last_predictions = predictions
-                # the dominant emotion is the one with the highest probability
-                label = self.emotions_labels[predictions.argmax()]
-                self.last_max = label
 
             if len(self.predictions_array) < 15:
                 self.predictions_array.append(self.last_predictions)

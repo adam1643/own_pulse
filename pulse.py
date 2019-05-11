@@ -113,11 +113,6 @@ def password_entry(event):
 
 
 def set_emotions_labels(emotions):
-    # labels_emotion = [None] * 7
-    # labels_emotions_value = [None] * 7
-    # var_emotions = [tk.StringVar()] * 7
-    max_emotion = emotions.argmax()
-    print(max_emotion)
     for i in range(7):
         f = font.Font(labelLogin, labelLogin.cget("font"))
         labels_emotion[i].configure(font=f, fg='black')
@@ -126,11 +121,11 @@ def set_emotions_labels(emotions):
         e = "{:0.2f}%".format(e * 100)
         var_emotions[i].set(e)
 
+    max_emotion = emotions.argmax()
     bold_font = font.Font(labels_emotion[max_emotion], labels_emotion[max_emotion].cget("font"))
     bold_font.configure(weight="bold")
     labels_emotion[max_emotion].configure(font=bold_font, fg='red')
     labels_emotions_value[max_emotion].configure(font=bold_font, fg='red')
-
 
 
 root = tk.Tk()
@@ -165,12 +160,6 @@ def on_leave(event):
     event.widget.config(fg="black")
 
 
-# ostatnia linijka
-warning_text = tk.StringVar()
-warning_text.set("Musisz być zalogowany, żeby zapisać wyniki!")
-label_warning = tk.Label(root, textvariable=warning_text, fg="red", bg="#DDDDDD")
-label_warning.grid(column=1, row=16, columnspan=4, sticky=tk.S)
-
 # ------------------- FRAME LOGIN -------------------
 
 frame_login = tk.Frame(root, highlightbackground="black", highlightcolor="black", highlightthickness=2, bd=0)
@@ -199,7 +188,7 @@ button_login = tk.Button(frame_login, text="Zaloguj", width=10, command=login_ca
 button_login.grid(column=0, row=3, pady=5)
 
 # link do strony
-label_link = tk.Label(frame_login, text="Nie masz konta? Zarejestruj się", width=30)
+label_link = tk.Label(frame_login, text="Nie masz konta? Zarejestruj się", width=32)
 label_link.bind("<Button-1>", open_website)
 label_link.bind("<Enter>", on_enter)
 label_link.bind("<Leave>", on_leave)
@@ -217,7 +206,7 @@ frame_pulse = tk.Frame(root, highlightbackground="black", highlightcolor="black"
 frame_pulse.grid(column=0, row=5, rowspan=5, sticky=tk.E + tk.W + tk.N + tk.S, pady=3, padx=3)
 frame_pulse.lift()
 
-label_pulse = tk.Label(frame_pulse, text="PULS", width=20)
+label_pulse = tk.Label(frame_pulse, text="PULS", width=21)
 label_pulse.grid(column=0, row=0, sticky=tk.E + tk.W + tk.N + tk.S)
 bold_font = font.Font(label_link, label_link.cget("font"))
 bold_font.configure(weight="bold")
@@ -241,7 +230,7 @@ b2.grid(column=0, row=2)
 # ----------------- FRAME EMOTIONS ------------------
 
 def insert_row(frame=None, index=None, text=None, text_var=None):
-    l1 = tk.Label(frame, borderwidth=1, relief="groove", width=20, text=text)
+    l1 = tk.Label(frame, borderwidth=1, relief="groove", width=22, text=text)
     l1.grid(column=0, row=index, sticky=tk.E + tk.W + tk.N + tk.S)
     l2 = tk.Label(frame, borderwidth=1, relief="groove", width=10, textvariable=text_var)
     l2.grid(column=1, row=index, sticky=tk.E + tk.W + tk.N + tk.S)
@@ -282,9 +271,16 @@ lmain.lower()
 
 # popup o zapisanych danych
 label_saved = tk.Label(root, text="Dane zapisano!", bg="#EEEEEE")
-label_saved.grid(column=1, row=16, columnspan=4, sticky=tk.E)
+label_saved.grid(column=1, row=16, columnspan=4, sticky=tk.E+tk.S)
 label_saved.lower()
 label_saved.lower()
+
+# ostatnia linijka
+warning_text = tk.StringVar()
+warning_text.set("Musisz być zalogowany, żeby zapisać wyniki!")
+label_warning = tk.Label(root, textvariable=warning_text, fg="red", bg="#DDDDDD")
+label_warning.grid(column=1, row=16, columnspan=4, sticky=tk.S)
+
 
 # ----------------- FRAME MAIN VIDEO END ------------
 
@@ -305,7 +301,7 @@ def login_response(response, **kwargs):
         lmain1.grid(column=0, row=0, rowspan=4, sticky=tk.W + tk.E + tk.N + tk.S)
 
         # link do strony
-        label_link_results = tk.Label(frame_login, text="Przejdź do historii wyników", width=30)
+        label_link_results = tk.Label(frame_login, text="Przejdź do historii wyników", width=32)
         label_link_results.bind("<Button-1>", open_website)
         label_link_results.bind("<Enter>", on_enter)
         label_link_results.bind("<Leave>", on_leave)
