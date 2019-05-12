@@ -16,7 +16,7 @@ class Emotions(object):
         self.emotions_labels = ['Złość', 'Zniesmaczenie', 'Strach', 'Radość', 'Smutek', 'Zaskoczenie', 'Obojętność']
         self.last_predictions = np.array([0] * 7)
         self.predictions_array = []
-        self.predictions_mean = []
+        self.predictions_mean = np.array([0] * 7)
         self.emotions_measured = False
 
     def predict(self, frame, faces):

@@ -37,6 +37,16 @@ class Pulse(object):
     def start(self):
         self.processor.find_faces_toggle()
 
+    def mean(self, x):
+        length = len(x)
+        if length is 0:
+            return "---"
+
+        sum = 0
+        for a in x:
+            sum = sum + a
+        return sum / length
+
     def loop(self):
         frame = self.camera.get_frame()
         frame = cv2.flip(frame, 1)
@@ -55,7 +65,7 @@ class Pulse(object):
         lmain.configure(image=imgtk)
 
         bpms = self.processor.get_bpms()
-        self.bpm = mean(bpms)
+        self.bpm = self.mean(bpms)
 
         if self.sending_pulse is False and self.processor.pulse_measured is True and self.logged_in is True:
             send_pulse()
@@ -69,17 +79,6 @@ class Pulse(object):
             text_var_pulse.set(str(self.bpm))
 
         set_emotions_labels(self.e.get_last_prediction())
-
-
-def mean(x):
-    length = len(x)
-    if length is 0:
-        return "---"
-
-    sum = 0
-    for a in x:
-        sum = sum + a
-    return sum / length
 
 
 def send_pulse():
@@ -208,7 +207,7 @@ frame_pulse = tk.Frame(root, highlightbackground="black", highlightcolor="black"
 frame_pulse.grid(column=0, row=5, rowspan=5, sticky=tk.E + tk.W + tk.N + tk.S, pady=3, padx=3)
 frame_pulse.lift()
 
-# PULS label
+# PULSE label
 label_pulse = tk.Label(frame_pulse, text=TXT_PULSE, width=21)
 label_pulse.grid(column=0, row=0, sticky=tk.E + tk.W + tk.N + tk.S)
 bold_font = font.Font(label_link, label_link.cget("font"))
@@ -316,6 +315,7 @@ def login_response(response, **kwargs):
     else:
         label_logged_in = tk.Label(frame_login, text=TXT_WRONG_CREDENTIALS, fg="red")
         label_logged_in.grid(column=0, row=3, rowspan=1, sticky=tk.N + tk.S)
+        # hide window after 2 s
         root.after(2000, label_logged_in.destroy)
 
 
@@ -330,8 +330,3 @@ while True:
     p.loop()
     root.update_idletasks()
     root.update()
-
-#
-# [{ "_id" : ObjectId("5cd5f95db03d621b50347990"), "userId" : "5cd5f75a50805d51d06b25bb", "pulse" : 55, "createdAt" : ISODate("2019-05-10T12:21:17.669Z"), "_class" : "pl.mdados.ehealth.model.PulseReadout" }]
-#
-# [{"id":"5cd5f93fb03d621b50347993","userId":"5cd5f75a50805d51d06b25bb","pulse":55,"comment":null,"createdAt":"2019-05-10T20:20:47.536+0000"}, {"id":"5cd5f93fb03d621b50347992","userId":"5cd5f75a50805d51d06b25bb","pulse":60,"comment":null,"createdAt":"2019-05-10T18:20:47.536+0000"}, {"id":"5cd5f93fb03d621b50347991","userId":"5cd5f75a50805d51d06b25bb","pulse":85,"comment":null,"createdAt":"2019-05-10T16:20:47.536+0000"}]

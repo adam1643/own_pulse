@@ -1,6 +1,8 @@
-pillow
-requests
-grequests
-numpy
-keras
-cv2
+opencv-python>=4.1.0.25
+numpy>=1.16.2
+Pillow>=6.0.0
+
+requests>=2.21.0
+grequests>=0.3.0
+
+Keras>=2.2.4
