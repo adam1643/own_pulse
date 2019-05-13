@@ -79,6 +79,8 @@ class Pulse(object):
             text_var_pulse.set(TXT_WAIT + str(int(self.processor.gap)) + " s")
         else:
             text_var_pulse.set(str(self.bpm))
+        if self.processor.find_faces is True:
+            text_var_pulse.set("---")
 
         set_emotions_labels(self.e.get_last_prediction())
 
@@ -118,7 +120,7 @@ def password_entry(event):
 
 def set_emotions_labels(emotions):
     for i in range(7):
-        f = font.Font(labelLogin, labelLogin.cget("font"))
+        f = font.Font(label_login, label_login.cget("font"))
         labels_emotion[i].configure(font=f, fg='black')
         labels_emotions_value[i].configure(font=f, fg='black')
         e = emotions[i]
@@ -145,6 +147,15 @@ def login_callback():
 
 def start_pulse_measure():
     p.start()
+    button_start_measure.config(text=TXT_STOP_MEASURE_BUTTON)
+    button_start_measure.config(command=stop_pulse_measure)
+
+
+def stop_pulse_measure():
+    p.start()
+    button_start_measure.config(text=TXT_START_MEASURE_BUTTON)
+    button_start_measure.config(command=start_pulse_measure)
+    text_var_pulse.set("---")
 
 
 def hide_label():
@@ -170,8 +181,8 @@ frame_login.grid(column=0, row=0, rowspan=5, sticky=tk.E + tk.W + tk.N + tk.S, p
 frame_login.lift()
 
 # first line
-labelLogin = tk.Label(frame_login, text=TXT_LOG_IN)
-labelLogin.grid(column=0, row=0)
+label_login = tk.Label(frame_login, text=TXT_LOG_IN)
+label_login.grid(column=0, row=0)
 
 # login entrys
 entry_username = tk.Entry(frame_login, bd=1)
@@ -220,13 +231,13 @@ label_pulse.configure(font=bold_font)
 # pulse result
 text_var_pulse = tk.StringVar()
 text_var_pulse.set("---")
-label3 = tk.Label(frame_pulse, textvariable=text_var_pulse, fg="red")
-label3.config(font=("Courier", 20))
-label3.grid(column=0, row=1, sticky=tk.E + tk.W + tk.N + tk.S)
+label_pulse_result = tk.Label(frame_pulse, textvariable=text_var_pulse, fg="red")
+label_pulse_result.config(font=("Courier", 20))
+label_pulse_result.grid(column=0, row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
 # measure start button
-b2 = tk.Button(frame_pulse, text=TXT_START_MEASURE_BUTTON, command=start_pulse_measure)
-b2.grid(column=0, row=2)
+button_start_measure = tk.Button(frame_pulse, text=TXT_START_MEASURE_BUTTON, command=start_pulse_measure)
+button_start_measure.grid(column=0, row=2)
 
 
 # ----------------- FRAME PULSE END -----------------
@@ -258,13 +269,6 @@ for i in range(7):
     (labels_emotion[i], labels_emotions_value[i]) = insert_row(frame=frame_emotions, index=i, text=emotions_l[i],
                                                                text_var=var_emotions[i])
 
-# best result
-# var_best = tk.StringVar()
-# var_best.set("Best")
-# label_emotions = tk.Label(root, textvariable=var_best, fg="red")
-# label_emotions.config(font=("Courier", 30))
-# label_emotions.grid(column=0, row=16)
-
 # ----------------- FRAME EMOTIONS END --------------
 
 
@@ -291,7 +295,7 @@ label_warning.grid(column=1, row=16, columnspan=4, sticky=tk.S)
 # ----------------- FRAME MAIN VIDEO END ------------
 
 
-# a = conn.register_user("adam", "adam")
+# a = conn.register_user("nowak", "nowak")
 # print(a.text)
 
 
