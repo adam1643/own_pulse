@@ -1,3 +1,5 @@
+__version__ = "1.0.0"
+
 from lib.cam import Camera
 import cv2
 import tkinter as tk
@@ -45,7 +47,7 @@ class Pulse(object):
         sum = 0
         for a in x:
             sum = sum + a
-        return sum / length
+        return int(sum / length)
 
     def loop(self):
         frame = self.camera.get_frame()
@@ -218,7 +220,7 @@ label_pulse.configure(font=bold_font)
 # pulse result
 text_var_pulse = tk.StringVar()
 text_var_pulse.set("---")
-label3 = tk.Label(frame_pulse, textvariable=text_var_pulse, fg="blue")
+label3 = tk.Label(frame_pulse, textvariable=text_var_pulse, fg="red")
 label3.config(font=("Courier", 20))
 label3.grid(column=0, row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
