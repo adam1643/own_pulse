@@ -89,7 +89,7 @@ def send_pulse():
     if p.processor.pulse_measured is True:
         p.sending_pulse = True
         conn.save_pulse(p.bpm, send_response)
-        Timer(5.0, send_pulse).start()
+        Timer(20.0, send_pulse).start()
     else:
         p.sending_pulse = False
 
@@ -98,7 +98,7 @@ def send_emotions():
     if p.e.emotions_measured is True:
         p.sending_emotions = True
         conn.save_emotions(p.e.get_last_prediction(), send_response)
-        Timer(5.0, send_emotions).start()
+        Timer(20.0, send_emotions).start()
     else:
         p.sending_emotions = False
 
